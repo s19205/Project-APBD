@@ -11,10 +11,11 @@ namespace AdvertApi.Services
     {
 
         bool IsClientExists(string login);
-        public bool AddClient(RegistrationRequest request);
+        public RegistrationResponse AddClient(RegistrationRequest request);
+        public ICollection<CampaignsResponse> GetCampaigns();
+        public LoginResponse LoginClient(LoginRequest request);
+        public LoginResponse RefreshToken(RefreshTokenRequest request);
+        public NewCampaignResponse NewCampaign(NewCampaignRequest request);
 
-        PasswordResponse getStudentPasswordData(string login);
-        String GetRefreshTokenOwner(String refreshToken);
-        void SetRefreshToken(string login, String refreshToken);
     }
 }

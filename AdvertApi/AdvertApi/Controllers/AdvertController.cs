@@ -22,14 +22,10 @@ namespace AdvertApi.Controllers
     public class AdvertController : ControllerBase
     {
         private readonly IDbService dbService;
-        IPasswordService passwordService;
-        IConfiguration configuration;
 
-        public AdvertController(IDbService dbService, IPasswordService passwordService, IConfiguration configuration)
+        public AdvertController(IDbService dbService)
         {
             this.dbService = dbService;
-            this.passwordService = passwordService;
-            this.configuration = configuration;
         }
 
         [HttpPost("clients")]

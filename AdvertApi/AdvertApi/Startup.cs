@@ -15,7 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-
+using Microsoft.OpenApi.Models;
 
 namespace AdvertApi
 {
@@ -33,8 +33,7 @@ namespace AdvertApi
         {
             services.AddScoped<s19205Context, s19205Context>();
             services.AddScoped<IDbService, SqlServerDbService>();
-            services.AddScoped<IPasswordService, SecurityPasswordService>();
-
+     
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
@@ -48,6 +47,10 @@ namespace AdvertApi
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["SecretKey"]))
                     };
                 });
+            services.AddSwaggerGen(config =>
+            {
+                config.SwaggerDoc("v1", new OpenApiInfo { Title = "Advert API", Version = "v1" });
+            });
 
 
             services.AddControllers();
