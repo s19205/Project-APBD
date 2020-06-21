@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace AdvertApi.DTOs.Responses
 {
-    public class PasswordResponse
+    public class LoginResponse
     {
-        public String Password { get; set; }
-        public String Value { get; set; }
+        public string AccessToken { get; set; }
+        public string RefreshToken { get; set; }
     }
 }

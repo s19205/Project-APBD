@@ -12,7 +12,7 @@ namespace AdvertApi.DTOs.Requests
         [MaxLength(15)]
         public string Login { get; set; }
         [Required(ErrorMessage = "Password field has to be specified")]
-        [MaxLength(30)]
+        [MinLength(8)]
         public string Password { get; set; }
     }
 }

@@ -6,6 +6,8 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using AdvertApi.DTOs.Requests;
+using AdvertApi.DTOs.Responses;
+using AdvertApi.Exceptions;
 using AdvertApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -15,7 +17,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace AdvertApi.Controllers
 {
-    [Route("api/clients")]
+    [Route("api/adverts")]
     [ApiController]
     public class AdvertController : ControllerBase
     {
@@ -30,87 +32,74 @@ namespace AdvertApi.Controllers
             this.configuration = configuration;
         }
 
-        [HttpPost]
+        [HttpPost("clients")]
         [AllowAnonymous]
         public IActionResult AddClient(RegistrationRequest request)
         {
-            if (dbService.AddClient(request))
-                return StatusCode(201);
-            else
-                return BadRequest("WRONG DATA");
-        }
-
-
-        [AllowAnonymous]
-        [HttpPost("refresh-token/{refreshToken}")]
-        public IActionResult refreshToken(String refreshToken)
-        {
-            string login = dbService.GetRefreshTokenOwner(refreshToken);
-            if (login == null)
-            {
-                return BadRequest("Wrong refresh token");
+            try {
+                RegistrationResponse resp = dbService.AddClient(request);
+                return Created("", resp);
             }
-
-            var claims = new[]
+            catch (LoginExistException exc)
             {
-                new Claim(ClaimTypes.Name,login),
-                new Claim(ClaimTypes.Role,"Client")
-            };
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["SecretKey"]));
-            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var token = new JwtSecurityToken(
-                issuer: "Gakko",
-                audience: "Client",
-                claims: claims,
-                expires: DateTime.Now.AddMinutes(10),
-                signingCredentials: credentials
-            );
-            return Ok(new
-            {
-                token = new JwtSecurityTokenHandler().WriteToken(token)
-            });
-
+                return BadRequest(exc);
+            }
         }
 
         [AllowAnonymous]
-        [HttpPost("login")]
-        public IActionResult Login(LoginRequest request)
+        [HttpPost("clients/login")]
+        public IActionResult LoginClient(LoginRequest request)
         {
-            if (!dbService.IsClientExists(request.Login))
+            try
             {
-                return BadRequest("WRONG PASSWORD OR LOGIN");
+                return Ok(dbService.LoginClient(request));
             }
-
-            var requestedPasswordsData = dbService.getStudentPasswordData(request.Login);
-            if (!passwordService.ValidatePassword(requestedPasswordsData.Password, request.Password, requestedPasswordsData.Value))
+            catch (IncorrectLoginException exc)
             {
-                return BadRequest("Wrong password or login");
+                return BadRequest(exc);
             }
-
-            var claims = new[]
+            catch (IncorrectPasswordException exc)
             {
-                new Claim(ClaimTypes.Name,request.Login),
-                new Claim(ClaimTypes.Role,"Client")
-            };
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["SecretKey"]));
-            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var token = new JwtSecurityToken(
-                issuer: "Gakko",
-                audience: "Student",
-                claims: claims,
-                expires: DateTime.Now.AddMinutes(10),
-                signingCredentials: credentials
-            );
-            var TmpRefreshToken = Guid.NewGuid();
-            dbService.SetRefreshToken(request.Login, TmpRefreshToken.ToString());
-            return Ok(new
-            {
-                token = new JwtSecurityTokenHandler().WriteToken(token),
-                refershToken = TmpRefreshToken
-            });
+                return BadRequest(exc);
+            }
         }
 
+        [HttpPost("clients/refresh")]
+        public IActionResult RefreshToken(RefreshTokenRequest request)
+        {
+            try
+            {
+                return Ok(dbService.RefreshToken(request));
+            }
+            catch (RefreshTokenIncorrectException exc)
+            {
+                return NotFound(exc);
+            }
+        }
+
+        [HttpPost("campaigns")]
+        [Authorize]
+        public IActionResult GetCampaings()
+        {
+            return Ok(dbService.GetCampaigns());
+        }
+
+        [HttpPost("campaigns/create")]
+        [Authorize]
+        public IActionResult NewCampaign(NewCampaignRequest request)
+        {
+            try
+            {
+                return Created("", dbService.NewCampaign(request));
+            }
+            catch (BuildingsNotExistException exc)
+            {
+                return NotFound(exc);
+            }
+            catch (BuildingsNotNearException exc)
+            {
+                return BadRequest(exc);
+            }
+        }
     }
 }
