@@ -13,7 +13,7 @@ namespace AdvertApiTests.UnitTests.Campaigns
         [Test]
         public void AddCampaign_CompleteRequest_Correct()
         {
-            NewCampaignRequest req = new NewCampaignRequest { 
+            NewCampaignRequest request = new NewCampaignRequest { 
                 IdClient = 5, 
                 StartDate = DateTime.Today, 
                 EndDate = DateTime.Today.AddDays(15),
@@ -21,10 +21,10 @@ namespace AdvertApiTests.UnitTests.Campaigns
                 FromIdBuilding = 2, 
                 ToIdBuilding = 5 
             };
-            var context = new ValidationContext(req, null, null);
+            var context = new ValidationContext(request, null, null);
             var results = new List<ValidationResult>();
 
-            var isModelValid = Validator.TryValidateObject(req, context, results, true);
+            var isModelValid = Validator.TryValidateObject(request, context, results, true);
 
             Assert.IsTrue(isModelValid);
             Assert.IsTrue(results.Count == 0);

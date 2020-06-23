@@ -14,7 +14,7 @@ namespace AdvertApiTests.UnitTests.Users
         [Test]
         public void AddClient_CompleteRequest_Correct()
         {
-            RegistrationRequest req = new RegistrationRequest { 
+            RegistrationRequest request = new RegistrationRequest { 
                 FirstName = "Myname", 
                 LastName = "Yourname", 
                 Email = "Email", 
@@ -22,9 +22,9 @@ namespace AdvertApiTests.UnitTests.Users
                 Login = "Mylogin", 
                 Password = "0password1" 
             };
-            var context = new ValidationContext(req, null, null);
+            var context = new ValidationContext(request, null, null);
             var results = new List<ValidationResult>();
-            var isModelValid = Validator.TryValidateObject(req, context, results, true);
+            var isModelValid = Validator.TryValidateObject(request, context, results, true);
 
             Assert.IsTrue(isModelValid);
             Assert.IsTrue(results.Count == 0);
