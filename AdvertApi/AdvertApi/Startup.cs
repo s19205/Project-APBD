@@ -43,7 +43,7 @@ namespace AdvertApi
                         ValidateAudience = true,
                         ValidateLifetime = true,
                         ValidIssuer = "s19205",
-                        ValidAudience = "Clients",
+                        ValidAudience = "Client",
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["SecretKey"]))
                     };
                 });
@@ -66,7 +66,7 @@ namespace AdvertApi
             app.UseSwagger();
             app.UseSwaggerUI(config =>
             {
-                config.SwaggerEndpoint("/swagger/v1/swagger.json", "Advertising app API");
+                config.SwaggerEndpoint("/swagger/v1/swagger.json", "Advert API");
             });
 
             app.UseRouting();
